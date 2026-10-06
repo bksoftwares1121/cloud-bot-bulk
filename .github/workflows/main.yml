@@ -1,0 +1,26 @@
+name: Cloud Bot Bulk
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */5 * * *' # Runs automatically every 5 hours
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install playwright requests
+      - run: playwright install chromium
+      - run: python bot.py
+      - name: Save Progress
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git add views.txt
+          git commit -m "Update views count" || exit 0
+          git push
